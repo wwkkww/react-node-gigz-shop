@@ -149,7 +149,7 @@ app.post('/api/users/login', (req, res) => {
                 loginSuccess: false,
                 message: 'Email not found'
             });
-        }
+        };
 
         //verified password
         user.comparePassword(req.body.password, (err, isMatch) => {
