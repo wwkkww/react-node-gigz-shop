@@ -164,7 +164,7 @@ app.post('/api/users/login', (req, res) => {
                 if (err) return res.status(400).send(err);
                 res.cookie('g_auth', user.token).status(200).json({
                     loginSuccess: true
-                });
+                }); 
             });
         });
     });
@@ -175,7 +175,8 @@ app.get('/api/users/auth', auth, (req, res) => {
         isAdmin: req.user.role === 0 ? false : true,
         isAuth: true,
         email: req.user.email,
-        name: req.user.lastname,
+        name: req.user.name,
+        lastname: req.user.lastname,
         role: req.user.role,
         cart: req.user.cart,
         history: req.user.history
@@ -183,11 +184,11 @@ app.get('/api/users/auth', auth, (req, res) => {
     })
 });
 
-app.get('/api/user/logout', auth, (req, res) => {
+app.get('/api/users/logout', auth, (req, res) => {
     User.findOneAndUpdate({ _id: req.user._id }, { token: '' }, (err, doc) => {
         if (err) return res.json({ success: false, err });
         return res.status(200).send({
-            sucess: true
+            success: true
         })
     })
 })

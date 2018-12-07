@@ -2,16 +2,16 @@ import React from 'react';
 import UserLayout from '../../hoc/UserLayout';
 import MyButton from '../utils/button';
 
-const UserDashboard = () => {
+const UserDashboard = ({user}) => {
     return (
         <UserLayout>
             <div>
                 <div className="user_nfo_panel">
                     <h1>User information</h1>
                     <div>
-                        <span>First name</span>
-                        <span>Last name</span>
-                        <span>Email</span>
+                        <span>{user.userData.name}</span>
+                        <span>{user.userData.lastname}</span>
+                        <span>{user.userData.email}</span>
                     </div>
                     <MyButton
                         type="default"
@@ -22,7 +22,7 @@ const UserDashboard = () => {
                 <div className="user_nfo_panel">
                     <h1>Purchase history</h1>
                     <div className="user_product_block_wrapper">
-                        No purchase history
+                    {user.userData.hitory}
                     </div>
                 </div>
 

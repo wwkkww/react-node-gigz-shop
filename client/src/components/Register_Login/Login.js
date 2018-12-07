@@ -56,7 +56,7 @@ class Login extends Component {
             // console.log(dataToSubmit);
             this.props.dispatch(loginUser(dataToSubmit)).then(res => {
                 if(res.payload.loginSuccess){
-                    console.log(res.payload);
+                    console.log("Login payload", res.payload);
                     this.props.history.push('./user/dashboard')
                 } else {
                     this.setState({
