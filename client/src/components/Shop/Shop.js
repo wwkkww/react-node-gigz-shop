@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import PageTop from '../utils/PageTop';
 import { frets, price } from '../utils/Form/FixedCategories';
 import { connect } from 'react-redux';
-import { getBrands, getWoods } from '../../actions/products_actions';
+import { getBrands, getWoods, getProductsToShop } from '../../actions/products_actions';
 
 import CollapseCheckbox from '../utils/CollapseCheckbox';
 import CollapseRadio from '../utils/CollapseRadio';
+
+import LoadMoreCards from './LoadMoreCards';
 
 class Shop extends Component {
 
@@ -24,6 +26,11 @@ class Shop extends Component {
     componentDidMount() {
         this.props.dispatch(getBrands());
         this.props.dispatch(getWoods());
+        this.props.dispatch(getProductsToShop(
+            this.state.skip,
+            this.state.limit,
+            this.state.filters
+        ))
     };
 
     handleFilters = (filters, category) => {
@@ -35,6 +42,7 @@ class Shop extends Component {
             newFilters[category] = priceValues;
         }
 
+        this.showFilteredResults(newFilters)
         this.setState({
             filters: newFilters
         })
@@ -43,19 +51,41 @@ class Shop extends Component {
     handlePrice = (value) => {
         const data = price;
         let arr = [];
-
         for (let key in data) {
             if (data[key]._id === parseInt(value, 10)) {
                 arr = data[key].array
+                // console.log("data[key]", data[key])
             }
         }
-
         return arr;
+    };
+
+    showFilteredResults = (filters) => {
+        this.props.dispatch(getProductsToShop( 0, this.state.limit, filters))
+        .then(()=> {
+            this.setState({
+                skip: 0
+            })
+        })
+    };
+
+    loadMoreCards = () => {
+        let skip = this.state.skip + this.state.limit;
+        this.props.dispatch(getProductsToShop(
+            skip, 
+            this.state.limit,
+            this.state.filters,
+            this.props.products.toShop //pass current product state inside the store
+        )).then(()=>{
+            this.setState({
+                skip
+            })
+        })
     }
 
     render() {
         const products = this.props.products;
-        console.log(this.state.filters);
+        // console.log(this.state.filters);
         return (
             <div>
                 <PageTop title="Browse Products" />
@@ -88,7 +118,20 @@ class Shop extends Component {
                             />
                         </div>
                         <div className="right">
-                            RIGHT
+                            <div className="shop_options">
+                                <div className="shop_grids clear">
+                                    grids
+                                </div>
+                            </div>
+                            <dir>
+                                <LoadMoreCards 
+                                    grid={this.state.grid}
+                                    limit={this.state.limit}
+                                    products={products.toShop}
+                                    size={products.toShopSize}
+                                    loadMore={()=> this.loadMoreCards()}
+                                />
+                            </dir>
                         </div>
                     </div>
 

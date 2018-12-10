@@ -3,6 +3,7 @@ import { LOGIN_USER, REGISTER_USER, AUTH_USER, LOGOUT_USER } from './types';
 import { USER_SERVER } from '../components/utils/misc';
 
 export function loginUser(dataToSubmit){
+    console.log('axios loginUser')
     const request = axios.post(`${USER_SERVER}/login`, dataToSubmit).then((res)=> res.data);
     //reducer
     return {

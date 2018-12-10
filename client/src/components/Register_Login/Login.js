@@ -48,8 +48,7 @@ class Login extends Component {
 
     submitForm = (e) => {
         e.preventDefault();
-        // console.log('dataToSubmit');
-
+        
         let dataToSubmit = generateData(this.state.formData, 'login');
         let validForm = isFormValid(this.state.formData, 'login')
         if (validForm) {
