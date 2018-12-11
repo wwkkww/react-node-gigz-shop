@@ -9,6 +9,8 @@ export const GET_PRODUCTS_BY_SELL = 'get_product_by_sell';
 export const GET_PRODUCTS_BY_ARRIVAL = 'get_product_by_arrival';
 export const GET_BRANDS = 'get_brands';
 export const GET_WOODS = 'get_woods';
-export const GET_PRODUCTS_TO_SHOP = 'get_products_to_shop'
+export const GET_PRODUCTS_TO_SHOP = 'get_products_to_shop';
+export const ADD_PRODUCT = 'add_product';
+export const CLEAR_PRODUCT = 'clear_product';
 
 

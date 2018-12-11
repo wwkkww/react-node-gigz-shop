@@ -13,7 +13,7 @@ export default function (state = {}, action) {
                 registerSuccess: action.payload
             }
         case AUTH_USER:
-            console.log("user_reducers.js - AUTH_USER", action.payload)
+            // console.log("user_reducers.js - AUTH_USER", action.payload)
             return {
                 ...state,
                 userData: action.payload

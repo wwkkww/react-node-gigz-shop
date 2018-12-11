@@ -2,12 +2,15 @@ import React, { Component } from 'react';
 import PageTop from '../utils/PageTop';
 import { frets, price } from '../utils/Form/FixedCategories';
 import { connect } from 'react-redux';
-import { getBrands, getWoods, getProductsToShop } from '../../actions/products_actions';
 
+import { getBrands, getWoods, getProductsToShop } from '../../actions/products_actions';
 import CollapseCheckbox from '../utils/CollapseCheckbox';
 import CollapseRadio from '../utils/CollapseRadio';
-
 import LoadMoreCards from './LoadMoreCards';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faBars from '@fortawesome/fontawesome-free-solid/faBars';
+import faTh from '@fortawesome/fontawesome-free-solid/faTh';
 
 class Shop extends Component {
 
@@ -81,6 +84,12 @@ class Shop extends Component {
                 skip
             })
         })
+    };
+
+    handleGrid = () => {
+        this.setState({
+            grid: !this.state.grid ? 'grid_bars' : ''
+        })
     }
 
     render() {
@@ -120,7 +129,19 @@ class Shop extends Component {
                         <div className="right">
                             <div className="shop_options">
                                 <div className="shop_grids clear">
-                                    grids
+                                    <div
+                                        className={`grid_btn ${this.state.grid ? '' : 'active'}`}
+                                        onClick={()=> this.handleGrid()}
+                                    >
+                                        <FontAwesomeIcon icon={faTh} />
+                                    </div>
+
+                                    <div
+                                        className={`grid_btn ${!this.state.grid ? '' : 'active'}`}
+                                        onClick={()=> this.handleGrid()}
+                                    >
+                                        <FontAwesomeIcon icon={faBars} />
+                                    </div>
                                 </div>
                             </div>
                             <dir>

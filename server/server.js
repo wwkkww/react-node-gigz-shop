@@ -47,8 +47,10 @@ app.post('/api/product/shop', (req,res)=> {
         }
     }
 
-    console.log("findArgs", findArgs);
+    // console.log("findArgs", findArgs);
 
+    findArgs['publish'] = true;
+    
     Product.find(findArgs)
     .populate('brand')
     .populate('wood')
@@ -108,6 +110,7 @@ app.get('/api/product/articles', (req,res)=> {
     let limit = req.query.limit ? parseInt(req.query.limit) : 100;
     // let skip = req.query.limit ? req.query.limit : 5;
 
+    
     Product.find()
     .populate('brand')
     .populate('wood')
