@@ -167,7 +167,7 @@ app.post('/api/product/brand', auth, admin, (req, res) => {
         res.status(200).json({
             success: true,
             brand: doc
-        })
+        });
     });
 });
 
