@@ -2,7 +2,7 @@ import React from 'react';
 import CardBlockShop from '../utils/CardBlockShop';
 
 const LoadMoreCards = (props) => {
-    console.log('props.size', props.size)
+    // console.log('props.size', props.size)
     return (
         <div>
             <div>
