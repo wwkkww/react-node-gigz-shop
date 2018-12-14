@@ -90,6 +90,7 @@ app.post('/api/product/article', auth, admin, (req, res) => {
 });
 
 //GET by id (single/multiple)
+// /api/product/articles_by_id
 app.get('/api/product/articles_by_id', (req, res) => {
     let type = req.query.type;
     let items = req.query.id;
@@ -261,10 +262,84 @@ app.post('/api/users/uploadimage', auth, admin, formidable(), (req, res) => {
 
 app.get('/api/users/removeimage', auth, admin, (req, res) => {
     let public_id = req.query.public_id;
-    cloudinary.uploader.destroy(public_id, (error, result)=> {
-        if(error) return res.json({success: false, error})
+    cloudinary.uploader.destroy(public_id, (error, result) => {
+        if (error) return res.json({ success: false, error })
         res.status(200).send('Successfully removed')
     })
+});
+
+app.post('/api/users/addToCart', auth, (req, res) => {
+    User.findOne({ _id: req.user._id }, (err, doc) => {
+        let duplicate = false;
+        // console.log("doc:", doc.cart)
+        // console.log('ProductId:', req.query);
+        doc.cart.forEach((item) => {
+            if (item.id == req.query.productId) { //use == to compare number with string
+                duplicate = true
+            }
+        });
+
+        console.log('duplicate:', duplicate);
+        if (duplicate) {
+            //add quantity +1 to the same productid
+            User.findOneAndUpdate(
+                { _id: req.user._id, "cart.id": mongoose.Types.ObjectId(req.query.productId) },
+                { $inc: { "cart.$.quantity": 1 } },
+                { new: true },
+                (err, doc) => {
+                    if (err) return res.json({ success: false, err })
+                    res.status(200).json(doc.cart)
+                }
+            )
+            // console.log("IS DUPLICATE")
+        } else {
+            //add new product to user cart[]
+            User.findOneAndUpdate(
+                { _id: req.user._id },
+                {
+                    $push: {
+                        //info stored into cart
+                        cart: {
+                            id: mongoose.Types.ObjectId(req.query.productId),
+                            quantity: 1,
+                            date: Date.now()
+                        }
+                    }
+                },
+                { new: true },
+                (err, doc) => {
+                    if (err) return res.json({ success: false, err })
+                    res.status(200).json(doc.cart)
+                }
+            )
+            console.log("IS NEW PRODUCT")
+        }
+    })
+});
+
+app.get('/api/users/removeFromCart', auth, (req, res) => {
+    User.findOneAndUpdate(
+        { _id: req.user._id },
+        { "$pull":
+            { "cart": {"id":mongoose.Types.ObjectId(req.query._id)}} 
+        },
+        {new: true},
+        (err,doc)=> {
+            let cart = doc.cart;
+            let array = cart.map(item=> {
+                return mongoose.Types.ObjectId(item.id)
+            });
+            
+            Product.find({
+                '_id': { $in: array }
+            }).populate('brand').populate('wood').exec((err, cartDetails)=> {
+                return res.status(200).json({
+                    cartDetails,
+                    cart
+                })
+            })
+        }
+    )
 })
 
 //===========================================================================
