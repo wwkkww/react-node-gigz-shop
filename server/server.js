@@ -8,6 +8,7 @@ const cloudinary = require('cloudinary');
 
 const app = express();
 const mongoose = require('mongoose');
+const async = require('async')
 require('dotenv').config();
 
 mongoose.Promise = global.Promise;
@@ -28,6 +29,7 @@ const { User } = require('./models/user');
 const { Brand } = require('./models/brand');
 const { Wood } = require('./models/wood');
 const { Product } = require('./models/product');
+const { Payment } = require('./models/payment');
 
 //Middleware
 const { auth } = require('./middleware/auth');
@@ -320,19 +322,20 @@ app.post('/api/users/addToCart', auth, (req, res) => {
 app.get('/api/users/removeFromCart', auth, (req, res) => {
     User.findOneAndUpdate(
         { _id: req.user._id },
-        { "$pull":
-            { "cart": {"id":mongoose.Types.ObjectId(req.query._id)}} 
+        {
+            "$pull":
+                { "cart": { "id": mongoose.Types.ObjectId(req.query._id) } }
         },
-        {new: true},
-        (err,doc)=> {
+        { new: true },
+        (err, doc) => {
             let cart = doc.cart;
-            let array = cart.map(item=> {
+            let array = cart.map(item => {
                 return mongoose.Types.ObjectId(item.id)
             });
-            
+
             Product.find({
                 '_id': { $in: array }
-            }).populate('brand').populate('wood').exec((err, cartDetails)=> {
+            }).populate('brand').populate('wood').exec((err, cartDetails) => {
                 return res.status(200).json({
                     cartDetails,
                     cart
@@ -340,12 +343,76 @@ app.get('/api/users/removeFromCart', auth, (req, res) => {
             })
         }
     )
-})
+});
+
+app.post('/api/users/successBuy', auth, (req, res) => {
+    let history = [];
+    let transactionData = {}
+
+    //user history
+    req.body.cartDetails.forEach((item) => {
+        history.push({
+            dateOfPurchase: Date.now(),
+            name: item.name,
+            brand: item.brand.name,
+            id: item._id,
+            price: item.price,
+            quantity: item.quantity,
+            paymentId: req.body.paymentData.paymentID
+        })
+    });
+
+    //Payment info dashboard (user data, payment data, product purchased data)
+    transactionData.user = {
+        id: req.user._id,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        email: req.user.email
+    }
+    transactionData.data = req.body.paymentData;
+    transactionData.product = history;
+
+    User.findOneAndUpdate(
+        { _id: req.user._id },
+        { $push: { history: history }, $set: { cart: [] } },
+        { new: true },
+        (err, user) => {
+            if (err) return res.status(404).json({ success: false, err });
+            const payment = new Payment(transactionData);
+            payment.save((err, doc) => {
+                if (err) return res.status(404).json({ success: false, err });
+
+                let products = [];
+                doc.product.forEach(item => {
+                    products.push({ id: item.id, quantity: item.quantity })
+                });
+
+                async.eachSeries(products, (item, callback) => {
+                    Product.update(
+                        {_id: item.id},
+                        { $inc: {
+                            "sold": item.quantity
+                        }},
+                        {new: false}, 
+                        callback
+                    )
+                }, (err) => {
+                    if(err) return res.status(404).json({success:false, err})
+                    res.status(200).json({
+                        success: true,
+                        cart: user.cart,
+                        cartDetails: []
+                    })
+                });
+            });
+        }
+    );
+});
 
 //===========================================================================
 
 const port = process.env.PORT || 3002;
 
 app.listen(port, () => {
-    console.log(`Server running at port: ${port}`);
-});
+    console.log(`Server running at port: ${port}`)
+})
