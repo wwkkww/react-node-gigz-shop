@@ -349,7 +349,7 @@ app.post('/api/users/successBuy', auth, (req, res) => {
     let history = [];
     let transactionData = {}
 
-    //user history
+    //USER PURCHASE HISTORY
     req.body.cartDetails.forEach((item) => {
         history.push({
             dateOfPurchase: Date.now(),
@@ -377,10 +377,10 @@ app.post('/api/users/successBuy', auth, (req, res) => {
         { $push: { history: history }, $set: { cart: [] } },
         { new: true },
         (err, user) => {
-            if (err) return res.status(404).json({ success: false, err });
+            if (err) return res.json({ success: false, err });
             const payment = new Payment(transactionData);
             payment.save((err, doc) => {
-                if (err) return res.status(404).json({ success: false, err });
+                if (err) return res.json({ success: false, err });
 
                 let products = [];
                 doc.product.forEach(item => {
@@ -389,15 +389,13 @@ app.post('/api/users/successBuy', auth, (req, res) => {
 
                 async.eachSeries(products, (item, callback) => {
                     Product.update(
-                        {_id: item.id},
-                        { $inc: {
-                            "sold": item.quantity
-                        }},
-                        {new: false}, 
+                        { _id: item.id },
+                        { $inc: { "sold": item.quantity } },
+                        { new: false },
                         callback
                     )
                 }, (err) => {
-                    if(err) return res.status(404).json({success:false, err})
+                    if (err) return res.status(404).json({ success: false, err })
                     res.status(200).json({
                         success: true,
                         cart: user.cart,
@@ -408,6 +406,21 @@ app.post('/api/users/successBuy', auth, (req, res) => {
         }
     );
 });
+
+
+app.post('/api/users/update_profile', auth, (req, res) => {
+    User.findOneAndUpdate(
+        { _id: req.user._id },
+        { "$set": req.body },
+        { new: true },
+        (err, doc) => {
+            if (err) return res.json({ success: false, err })
+            return res.status(200).send({
+                success: true
+            })
+        }
+    );
+})
 
 //===========================================================================
 
