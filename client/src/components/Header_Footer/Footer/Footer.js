@@ -5,8 +5,9 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faEnvelope from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
-const Footer = () => {
+const Footer = ({data}) => {
     return (
+        data.siteData ?
         <footer className="bck_b_dark">
             <div className="container">
                 <div className="logo">
@@ -23,7 +24,7 @@ const Footer = () => {
                                 />
                                 <div className="nfo">
                                     <div>Address</div>
-                                    <div>10, 55100 Kuala Lumpur</div>
+                                    <div>{data.siteData[0].address}</div>
                                 </div>
                             </div>
 
@@ -34,7 +35,7 @@ const Footer = () => {
                                 />
                                 <div className="nfo">
                                     <div>Phone</div>
-                                    <div>012-3388567</div>
+                                    <div>{data.siteData[0].phone}</div>
                                 </div>
                             </div>
 
@@ -45,7 +46,7 @@ const Footer = () => {
                                 />
                                 <div className="nfo">
                                     <div>Business hours</div>
-                                    <div>Mon-Sun/ 11am-10pm</div>
+                                    <div>{data.siteData[0].hours}</div>
                                 </div>
                             </div>
 
@@ -56,7 +57,7 @@ const Footer = () => {
                                 />
                                 <div className="nfo">
                                     <div>Email</div>
-                                    <div>gigzshop@email.com</div>
+                                    <div>{data.siteData[0].email}</div>
                                 </div>
                             </div>
 
@@ -71,6 +72,7 @@ const Footer = () => {
                 </div>
             </div>
         </footer>
+        : null
     );
 };
 

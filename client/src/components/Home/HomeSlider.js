@@ -2,7 +2,7 @@ import React from 'react';
 import Slider from 'react-slick';
 import MyButton from '../utils/button';
 
-const HomeSlider = () => {
+const HomeSlider = (props) => {
     const slides = [
         {
             img: '/images/featured/featured_home.jpg',
@@ -23,6 +23,7 @@ const HomeSlider = () => {
         dots: false,
         infinite: true,
         speed: 500,
+        autoplay: true,
         slidesToShow: 1,
         slidesToScroll: 1,
         arrows: false
