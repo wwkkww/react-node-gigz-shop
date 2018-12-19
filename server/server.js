@@ -3,8 +3,7 @@ const bodyParser = require('body-parser'); //JSON
 const cookieParser = require('cookie-parser'); //Cookie
 const formidable = require('express-formidable'); //request with files
 const cloudinary = require('cloudinary');
-
-
+const SHA1 = require('crypto-js/sha1');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -37,6 +36,14 @@ const { Site } = require('./models/site');
 //Middleware
 const { auth } = require('./middleware/auth');
 const { admin } = require('./middleware/admin');
+
+
+//UTILS
+const { sendEmail } = require('./utils/mail/index');
+
+// const date = new Date()
+// const po = `PO-${date.getSeconds()}${date.getMilliseconds()}-${SHA1("12443435FDSGSRFD").toString().substring(0,9)}`;
+// console.log('po', po);
 
 //=============================================================
 //                          PRODUCT
@@ -192,7 +199,8 @@ app.post('/api/users/register', (req, res) => {
     const user = new User(req.body);
     user.save((err, doc) => {
         if (err) return res.json({ success: false, err });
-
+        // sendEmail(to, name, token, type);
+        sendEmail(doc.email, doc.name, null, "welcome");
         res.status(200).json({
             success: true,
             // userdata: doc
@@ -350,11 +358,15 @@ app.get('/api/users/removeFromCart', auth, (req, res) => {
 
 app.post('/api/users/successBuy', auth, (req, res) => {
     let history = [];
-    let transactionData = {}
+    let transactionData = {};
+    const date = new Date()
+    const po = `PO-${date.getSeconds()}${date.getMilliseconds()}-${SHA1(req.user._id).toString().substring(0, 9)}`;
+    console.log('po', po);
 
     //USER PURCHASE HISTORY
     req.body.cartDetails.forEach((item) => {
         history.push({
+            porder: po,
             dateOfPurchase: Date.now(),
             name: item.name,
             brand: item.brand.name,
@@ -372,7 +384,10 @@ app.post('/api/users/successBuy', auth, (req, res) => {
         lastname: req.user.lastname,
         email: req.user.email
     }
-    transactionData.data = req.body.paymentData;
+    transactionData.data = {
+        ...req.body.paymentData,
+        porder: po
+    };
     transactionData.product = history;
 
     User.findOneAndUpdate(
@@ -399,6 +414,8 @@ app.post('/api/users/successBuy', auth, (req, res) => {
                     )
                 }, (err) => {
                     if (err) return res.status(404).json({ success: false, err })
+                    //send PO email to user
+                    sendEmail(user.email, user.name, null, "purchase", transactionData);
                     res.status(200).json({
                         success: true,
                         cart: user.cart,
@@ -443,7 +460,7 @@ app.post('/api/site/site_data', auth, admin, (req, res) => {
     Site.findOneAndUpdate(
         { name: "Site" },
         { "$set": { siteInfo: req.body } },
-        { new: true},
+        { new: true },
         (err, doc) => {
             if (err) return res.json({ success: false, err });
             return res.status(200).send({
@@ -458,9 +475,9 @@ app.post('/api/site/site_data', auth, admin, (req, res) => {
 //===========================================================================
 
 //DEFAULT
-if(process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production') {
     const path = require('path');
-    app.get('/*', (req, res)=> {
+    app.get('/*', (req, res) => {
         res.sendfile(path.resolve(__dirname, '../client', 'build', 'index.html'))
     })
 }
