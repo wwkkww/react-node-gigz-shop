@@ -34,7 +34,7 @@ const FormField = ({ id, formData, change }) => {
                         {showError()}
                     </div>
                 )
-                break;
+                break; 
 
             case ('select'):
                 formTemplate = (

@@ -470,7 +470,7 @@ footer .business_nfo .nfo {
     width: 100%;
     height: 280px;
     background-position: center !important;
-    background-size: cover !important;
+    background-size: contain !important;
     border: 1px solid #f0f0f0;
 }
 
@@ -701,17 +701,14 @@ footer .business_nfo .nfo {
 }
 
 .product_detail_wrapper .main_thumbs {
-
     margin-top: 10px;
 }
-
-
 
 .product_detail_wrapper .main_thumbs .thumb {
     cursor: pointer;
     height: 200px;
     width: 50%;
-    background-size: cover !important;
+    background-size: contain !important;
     background-position: bottom center !important;
     border: 1px solid #e8e8e8;
     box-sizing: border-box;
@@ -820,7 +817,7 @@ footer .business_nfo .nfo {
     height: 125px;
     background-size: contain !important;
     background-repeat: no-repeat !important;
-    background-position: center center !important;
+    background-position: center !important;
     margin-right: 10px;
 }
 .user_product_block .item.btn {
